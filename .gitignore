@@ -5,4 +5,3 @@ __pycache__/
 *.h5
 *.pyc
 .env
-/models
