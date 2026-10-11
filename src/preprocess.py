@@ -18,7 +18,7 @@ def main():
     train_set = torch.load(os.path.join(RAW_DIR, "train.pt"), weights_only=False)
     test_set = torch.load(os.path.join(RAW_DIR, "test.pt"), weights_only=False)
 
-    normalize = transforms.Normalize((0.5, 0.5, 0.5), (0.25, 0.25, 0.25))
+    normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616))
     transform = transforms.Compose([transforms.ToTensor(), normalize])
     train_set.transform = transform
     test_set.transform = transform
