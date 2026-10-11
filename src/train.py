@@ -11,26 +11,27 @@ MODELS_DIR = "models"
 class CNN(nn.Module):
     def __init__(self, num_filters, dropout_rate):
         super().__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, num_filters, 3, padding=1),
-            nn.BatchNorm2d(num_filters),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            nn.Conv2d(num_filters, num_filters * 2, 3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
+        nf = num_filters
+
+        def block(c_in, c_out):
+            return nn.Sequential(
+                nn.Conv2d(c_in, c_out, 3, padding=1), nn.BatchNorm2d(c_out), nn.ReLU(),
+                nn.Conv2d(c_out, c_out, 3, padding=1), nn.BatchNorm2d(c_out), nn.ReLU(),
+                nn.MaxPool2d(2), nn.Dropout(dropout_rate / 2),
+            )
+
+        self.features = nn.Sequential(block(3, nf), block(nf, nf * 2), block(nf * 2, nf * 4))
         self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(num_filters * 2 * 8 * 8, 128),
+            nn.Linear(nf * 4 * 4 * 4, 256),
             nn.ReLU(),
             nn.Dropout(dropout_rate),
-            nn.Linear(128, 10),
+            nn.Linear(256, 10),
         )
 
     def forward(self, x):
         return self.classifier(self.features(x))
-
+    
 def load_params():
     with open("params.yaml") as f:
         return yaml.safe_load(f)["train"]
